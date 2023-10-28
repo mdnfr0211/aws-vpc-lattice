@@ -13,3 +13,7 @@ data "aws_ami" "ubuntu" {
 }
 
 data "aws_availability_zones" "available" {}
+
+data "aws_kms_key" "ebs" {
+  key_id = "alias/aws/ebs"
+}

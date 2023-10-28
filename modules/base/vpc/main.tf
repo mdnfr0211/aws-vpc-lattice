@@ -12,8 +12,22 @@ module "vpc" {
   enable_nat_gateway = false
   enable_vpn_gateway = false
 
-  tags = merge(
-    { Name = var.vpc_name },
-    var.tags
-  )
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  enable_ipv6                                   = true
+  public_subnet_assign_ipv6_address_on_creation = true
+
+  create_egress_only_igw                                        = false
+  private_subnet_enable_dns64                                   = false
+  private_subnet_enable_resource_name_dns_aaaa_record_on_launch = false
+
+  public_subnet_ipv6_prefixes = [0, 1, 2]
+
+  public_subnet_suffix  = "public"
+  private_subnet_suffix = "private"
+
+  igw_tags = {
+    Name = format("%s-%s", var.vpc_name, "igw")
+  }
 }

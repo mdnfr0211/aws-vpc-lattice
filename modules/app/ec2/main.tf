@@ -50,7 +50,7 @@ resource "aws_ebs_volume" "main" {
   iops                 = each.value.type == "gp3" || each.value.type == "io1" || each.value.type == "io2" ? each.value.iops : null
   type                 = each.value.type
   multi_attach_enabled = each.value.type == "io1" || each.value.type == "io2" ? each.value.multi_attach_enabled : null
-  kms_key_id           = var.kms_key_id
+  kms_key_id           = var.kms_key_arn
 
   tags = merge(
     { Name = format("%s - %s", var.instance_name, each.value.device_name) },
