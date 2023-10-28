@@ -7,19 +7,21 @@ module "eks" {
   cluster_endpoint_public_access = true
 
   cluster_addons = {
+    coredns = {
+      most_recent = true
+    }
     kube-proxy = {
-      configuration_values = jsonencode({
-        computeType = "Fargate"
-      })
+      most_recent = true
     }
     vpc-cni = {
+      most_recent              = true
+      before_compute           = true
+      service_account_role_arn = module.vpc_cni_irsa.iam_role_arn
       configuration_values = jsonencode({
-        computeType = "Fargate"
-      })
-    }
-    coredns = {
-      configuration_values = jsonencode({
-        computeType = "Fargate"
+        env = {
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
       })
     }
   }
@@ -31,26 +33,15 @@ module "eks" {
   create_cluster_security_group = false
   create_node_security_group    = false
 
-  fargate_profiles = merge(
-    {
-      default = {
-        selectors = [
-          {
-            namespace = "kube-system"
-          }
-        ]
-        subnet_ids = var.fargate_subnet_ids
-      },
-      karpenter = {
-        selectors = [
-          {
-            namespace = "karpenter"
-          }
-        ]
-      }
-      subnet_ids = var.fargate_subnet_ids
-    }
-  )
+  eks_managed_node_group_defaults = {
+    use_custom_launch_template = false
+
+    ami_type       = "BOTTLEROCKET_x86_64"
+    platform       = "bottlerocket"
+    instance_types = ["t3.medium", "t3a.medium"]
+
+    iam_role_attach_cni_policy = true
+  }
 
   tags = var.tags
 }
