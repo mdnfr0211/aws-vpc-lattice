@@ -6,10 +6,12 @@ module "vpc" {
   cidr = "10.0.0.0/16"
 
   azs             = var.azs
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  private_subnets = var.private_subnets
+  public_subnets  = var.public_subnets
+  intra_subnets   = var.intra_subnets
 
-  enable_nat_gateway = false
+  enable_nat_gateway = var.enable_nat_gateway
+  single_nat_gateway = var.single_nat_gateway
   enable_vpn_gateway = false
 
   enable_dns_hostnames = true
@@ -26,6 +28,11 @@ module "vpc" {
 
   public_subnet_suffix  = "public"
   private_subnet_suffix = "private"
+  intra_subnet_suffix   = "intra"
+
+  public_subnet_tags  = {}
+  private_subnet_tags = var.private_subnet_tags
+  intra_subnet_tags   = var.intra_subnet_tags
 
   igw_tags = {
     Name = format("%s-%s", var.vpc_name, "igw")

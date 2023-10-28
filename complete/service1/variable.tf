@@ -24,7 +24,8 @@ variable "cluster_name" {
 }
 
 variable "service1_name" {
-  
+  description = "Name of the ECS Service"
+  type        = string
 }
 
 variable "vpc_name" {
