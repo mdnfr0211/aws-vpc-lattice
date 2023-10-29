@@ -25,6 +25,11 @@ variable "namespaces" {
   type        = list(string)
 }
 
+variable "create_policy" {
+  description = "Whether to create the custom policy"
+  type        = bool
+}
+
 variable "policy_name" {
   description = "The name of the policy"
   type        = string

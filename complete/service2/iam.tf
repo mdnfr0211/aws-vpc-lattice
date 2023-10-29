@@ -245,6 +245,7 @@ module "karpenter_sa_role" {
   oidc_provider_arn              = module.eks.oidc_provider_arn
   namespaces                     = ["karpenter:karpenter"]
 
-  policy_name = format("%s-%s-%s", "karpenter", "sa-policy", var.env)
-  policy      = data.aws_iam_policy_document.karpenter.json
+  create_policy = true
+  policy_name   = format("%s-%s-%s", "karpenter", "sa-policy", var.env)
+  policy        = data.aws_iam_policy_document.karpenter.json
 }

@@ -23,7 +23,7 @@ module "iam_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
   version = "~> 5.30"
 
-  create_policy = length(var.policy) > 0 ? true : false
+  create_policy = var.create_policy
   policy        = var.policy
   name          = var.policy_name
   description   = var.policy_description
@@ -32,7 +32,7 @@ module "iam_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "attach" {
-  count = length(var.policy) > 0 ? 1 : 0
+  count = var.create_policy ? 1 : 0
 
   role       = module.irsa_role.iam_role_name
   policy_arn = module.iam_policy.arn
