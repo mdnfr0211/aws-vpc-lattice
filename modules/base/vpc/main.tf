@@ -24,6 +24,9 @@ module "vpc" {
   private_subnet_enable_dns64                                   = false
   private_subnet_enable_resource_name_dns_aaaa_record_on_launch = false
 
+  intra_subnet_enable_dns64                                   = false
+  intra_subnet_enable_resource_name_dns_aaaa_record_on_launch = false
+
   public_subnet_ipv6_prefixes = [0, 1, 2]
 
   public_subnet_suffix  = "public"
@@ -37,4 +40,6 @@ module "vpc" {
   igw_tags = {
     Name = format("%s-%s", var.vpc_name, "igw")
   }
+
+  tags = var.tags
 }

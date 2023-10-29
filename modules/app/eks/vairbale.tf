@@ -23,9 +23,9 @@ variable "control_plane_subnet_ids" {
   type        = list(string)
 }
 
-variable "fargate_subnet_ids" {
-  description = "Subnet IDs specifically for Fargate Profile and the Pods running on it"
-  type        = list(string)
+variable "karpenter_role" {
+  description = "IAM Role of the Karpenter which will be attached to the Nodes"
+  type        = string
 }
 
 variable "tags" {

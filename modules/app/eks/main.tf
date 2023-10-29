@@ -14,9 +14,8 @@ module "eks" {
       most_recent = true
     }
     vpc-cni = {
-      most_recent              = true
-      before_compute           = true
-      service_account_role_arn = module.vpc_cni_irsa.iam_role_arn
+      most_recent    = true
+      before_compute = true
       configuration_values = jsonencode({
         env = {
           ENABLE_PREFIX_DELEGATION = "true"
@@ -39,9 +38,32 @@ module "eks" {
     ami_type       = "BOTTLEROCKET_x86_64"
     platform       = "bottlerocket"
     instance_types = ["t3.medium", "t3a.medium"]
-
-    iam_role_attach_cni_policy = true
   }
+
+  eks_managed_node_groups = {
+    default = {
+      use_custom_launch_template = false
+
+      min_size       = 1
+      max_size       = 1
+      desired_size   = 1
+      instance_types = ["t3.medium"]
+      disk_size      = 50
+      remote_access  = {}
+    }
+  }
+
+  manage_aws_auth_configmap = true
+  aws_auth_roles = [
+    {
+      rolearn  = var.karpenter_role
+      username = "system:node:{{EC2PrivateDNSName}}"
+      groups = [
+        "system:bootstrappers",
+        "system:nodes",
+      ]
+    },
+  ]
 
   tags = var.tags
 }

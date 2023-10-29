@@ -5,6 +5,8 @@ module "karpenter" {
   cluster_name           = module.eks.cluster_name
   irsa_oidc_provider_arn = module.eks.oidc_provider_arn
 
+  create_irsa = false
+
   iam_role_additional_policies = {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
@@ -33,7 +35,7 @@ resource "helm_release" "karpenter" {
 
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.karpenter.irsa_arn
+    value = module.karpenter_sa_role.iam_role_arn
   }
 
   set {
@@ -54,16 +56,35 @@ resource "kubectl_manifest" "karpenter_provisioner" {
     metadata:
       name: default
     spec:
-      requirements:
-        - key: karpenter.sh/capacity-type
-          operator: In
-          values: ["spot"]
+      consolidation:
+        enabled: true
       limits:
         resources:
-          cpu: 1000
+          cpu: 1k
       providerRef:
         name: default
-      ttlSecondsAfterEmpty: 30
+      requirements:
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - spot
+      - key: kubernetes.io/os
+        operator: In
+        values:
+        - linux
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - amd64
+      - key: karpenter.k8s.aws/instance-category
+        operator: In
+        values:
+        - c
+        - m
+      - key: karpenter.k8s.aws/instance-generation
+        operator: Gt
+        values:
+        - "2"
   YAML
 
   depends_on = [
@@ -81,9 +102,7 @@ resource "kubectl_manifest" "karpenter_node_template" {
       subnetSelector:
         karpenter.sh/discovery: ${module.eks.cluster_name}
       securityGroupSelector:
-        karpenter.sh/discovery: ${module.eks.cluster_name}
-      tags:
-        karpenter.sh/discovery: ${module.eks.cluster_name}
+        aws-ids: "${module.eks.cluster_primary_security_group_id}"
   YAML
 
   depends_on = [

@@ -6,5 +6,5 @@ module "eks" {
   vpc_id                   = module.vpc.id
   subnet_ids               = module.vpc.private_subnet_ids
   control_plane_subnet_ids = module.vpc.private_subnet_ids
-  fargate_subnet_ids       = module.vpc.private_subnet_ids
+  karpenter_role           = module.karpenter.role_arn
 }

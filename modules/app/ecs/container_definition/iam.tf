@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "execution_policy" {
 }
 
 module "iam" {
-  source = "../../../base/iam/"
+  source = "../../../base/iam/iam-assumable"
 
   role_name             = format("%s-%s", var.ecs_service, "execution-role")
   trusted_role_services = ["ecs-tasks.amazonaws.com"]

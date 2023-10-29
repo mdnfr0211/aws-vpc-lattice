@@ -1,5 +1,5 @@
 module "iam" {
-  source = "../../modules/base/iam"
+  source = "../../modules/base/iam/iam-assumable"
 
   role_name             = format("%s-%s", var.service1_name, "task-role")
   trusted_role_services = ["ecs-tasks.amazonaws.com"]
