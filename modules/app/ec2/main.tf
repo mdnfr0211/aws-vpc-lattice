@@ -4,11 +4,13 @@ module "ec2" {
 
   name = var.instance_name
 
-  ami                         = var.ami
-  instance_type               = var.instance_type
-  availability_zone           = var.availability_zone
-  subnet_id                   = var.subnet_id
-  vpc_security_group_ids      = var.sg_ids
+  ami               = var.ami
+  instance_type     = var.instance_type
+  availability_zone = var.availability_zone
+  subnet_id         = var.subnet_id
+  vpc_security_group_ids = [
+    module.sg.security_group_id
+  ]
   associate_public_ip_address = false
 
   create_iam_instance_profile = false

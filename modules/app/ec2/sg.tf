@@ -5,9 +5,13 @@ module "sg" {
   name        = format("%s-%s", var.instance_name, "sg")
   description = "Managed by Terraform"
 
-  vpc_id = module.vpc.id
+  vpc_id = var.vpc_id
 
-  ingress_with_cidr_blocks = []
+  ingress_with_self                     = []
+  ingress_with_cidr_blocks              = []
+  ingress_with_prefix_list_ids          = []
+  ingress_with_source_security_group_id = []
+
 
   egress_with_cidr_blocks = [
     {

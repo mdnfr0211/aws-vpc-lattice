@@ -23,11 +23,6 @@ variable "subnet_id" {
   type        = string
 }
 
-variable "sg_ids" {
-  description = " List of security group IDs to associate the instance with"
-  type        = list(string)
-}
-
 variable "iam_instance_profile" {
   description = "IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile"
   type        = string
@@ -47,6 +42,11 @@ variable "ebs_volumes" {
 
 variable "kms_key_arn" {
   description = "The ARN for the KMS encryption key"
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "ID of the VPC in which SG needs to be created"
   type        = string
 }
 
