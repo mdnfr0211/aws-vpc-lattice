@@ -16,12 +16,6 @@ module "eks" {
     vpc-cni = {
       most_recent    = true
       before_compute = true
-      configuration_values = jsonencode({
-        env = {
-          ENABLE_PREFIX_DELEGATION = "true"
-          WARM_PREFIX_TARGET       = "1"
-        }
-      })
     }
   }
 
@@ -29,8 +23,20 @@ module "eks" {
   subnet_ids               = var.subnet_ids
   control_plane_subnet_ids = var.control_plane_subnet_ids
 
-  create_cluster_security_group = false
+  create_cluster_security_group = true
   create_node_security_group    = false
+
+  cluster_security_group_additional_rules = {
+    ingress_vpc_lattice = {
+      description = "VPC Lattice"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      cidr_blocks = ["169.254.171.0/24"]
+    }
+  }
+
 
   eks_managed_node_group_defaults = {
     use_custom_launch_template = false
@@ -45,8 +51,8 @@ module "eks" {
       use_custom_launch_template = false
 
       min_size       = 1
-      max_size       = 1
-      desired_size   = 1
+      max_size       = 2
+      desired_size   = 2
       instance_types = ["t3.medium"]
       disk_size      = 50
       remote_access  = {}

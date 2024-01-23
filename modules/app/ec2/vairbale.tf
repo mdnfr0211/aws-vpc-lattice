@@ -33,10 +33,10 @@ variable "iam_instance_profile" {
   type        = string
 }
 
-variable "create_ebs_volume" {
-  description = "Whether to create the additional ebs volume"
-  type        = bool
-  default     = true
+variable "user_data" {
+  description = "The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument"
+  type        = string
+  default     = null
 }
 
 variable "ebs_volumes" {

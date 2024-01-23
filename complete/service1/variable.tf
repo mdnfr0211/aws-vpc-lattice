@@ -23,7 +23,7 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "service1_name" {
+variable "service_name" {
   description = "Name of the ECS Service"
   type        = string
 }

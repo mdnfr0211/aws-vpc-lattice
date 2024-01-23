@@ -2,14 +2,10 @@ module "irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~> 5.30"
 
-  role_name                          = var.role_name
-  attach_karpenter_controller_policy = false
+  role_name = var.role_name
 
-  karpenter_controller_cluster_name       = var.eks_cluster_name
-  karpenter_controller_node_iam_role_arns = var.eks_default_nodegroup_role_arn
-
-  attach_vpc_cni_policy = true
-  vpc_cni_enable_ipv4   = true
+  attach_vpc_cni_policy = var.attach_vpc_cni_policy
+  vpc_cni_enable_ipv4   = var.vpc_cni_enable_ipv4
 
   oidc_providers = {
     main = {

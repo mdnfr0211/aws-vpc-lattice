@@ -3,6 +3,11 @@ variable "vpc_name" {
   type        = string
 }
 
+variable "cidr_range" {
+  description = "The IPv4 CIDR block for the VPC"
+  type        = string
+}
+
 variable "public_subnets" {
   description = "A list of Public subnets inside the VPC"
   type        = list(string)

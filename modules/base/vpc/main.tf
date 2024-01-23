@@ -3,7 +3,7 @@ module "vpc" {
   version = "5.1.2"
 
   name = var.vpc_name
-  cidr = "10.0.0.0/16"
+  cidr = var.cidr_range
 
   azs             = var.azs
   private_subnets = var.private_subnets

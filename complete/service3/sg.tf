@@ -2,7 +2,7 @@ module "sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.0"
 
-  name        = format("%s-%s", var.service_name, "sg")
+  name        = format("%s-%s", var.instance_name, "sg")
   description = "Managed by Terraform"
 
   vpc_id = module.vpc.id

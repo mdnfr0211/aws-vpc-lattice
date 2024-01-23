@@ -4,15 +4,16 @@ variable "role_name" {
   default     = null
 }
 
-variable "eks_cluster_name" {
-  description = "Name of the EKS cluster"
-  type        = string
-  default     = ""
+variable "attach_vpc_cni_policy" {
+  description = "Determines whether to attach the VPC CNI IAM policy to the role"
+  type        = bool
+  default     = false
 }
 
-variable "eks_default_nodegroup_role_arn" {
-  description = "IAM Role ARN of EKS Default Nodegroup"
-  type        = list(string)
+variable "vpc_cni_enable_ipv4" {
+  description = "Determines whether to enable IPv4 permissions for VPC CNI policy"
+  type        = bool
+  default     = false
 }
 
 variable "oidc_provider_arn" {

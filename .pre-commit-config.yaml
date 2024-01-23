@@ -4,13 +4,6 @@ repos:
     hooks:
       - id: shellcheck
 
-  - repo: https://github.com/tcort/markdown-link-check
-    rev: v3.9.3
-    hooks:
-      - id: markdown-link-check
-        args:
-          - "--config=mlc_config.json"
-
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.81.0
     hooks:
@@ -23,11 +16,6 @@ repos:
         args:
           - --args=--module
           - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
-      - id: terraform_docs
-        args:
-          - --hook-config=--path-to-file=README.md
-          - --hook-config=--add-to-existing-file=true
-          - --hook-config=--recursive=true
       - id: terraform_tfsec
         args:
           - --args=--exclude-downloaded-modules

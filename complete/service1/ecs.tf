@@ -3,8 +3,8 @@ module "ecs" {
 
   cluster_name = format("%s-%s", var.cluster_name, var.env)
   ecs_service = {
-    service1 = {
-      name                = format("%s-%s", var.service1_name, var.env)
+    service = {
+      name                = format("%s-%s", var.service_name, var.env)
       cpu                 = 1024
       memory              = 2048
       task_definition_arn = module.ecs_task["api"].arn
