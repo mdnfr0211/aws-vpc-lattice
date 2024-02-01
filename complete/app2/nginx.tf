@@ -1,7 +1,4 @@
 resource "kubernetes_deployment_v1" "nginx" {
-  depends_on = [
-    helm_release.karpenter
-  ]
   metadata {
     name = "nginx-deployment"
     labels = {
@@ -9,7 +6,7 @@ resource "kubernetes_deployment_v1" "nginx" {
     }
   }
   spec {
-    replicas = 10
+    replicas = 1
     selector {
       match_labels = {
         app = "nginx"
@@ -48,6 +45,10 @@ resource "kubernetes_deployment_v1" "nginx" {
       }
     }
   }
+
+  depends_on = [
+    kubectl_manifest.karpenter_nodepool
+  ]
 }
 
 resource "kubernetes_service_v1" "nginx" {

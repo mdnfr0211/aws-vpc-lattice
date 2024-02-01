@@ -78,16 +78,31 @@ resource "helm_release" "gateway_controller" {
   name       = "gateway-api-controller"
   repository = "oci://public.ecr.aws/aws-application-networking-k8s"
   chart      = "aws-gateway-controller-chart"
-  version    = "v1.0.0"
+  version    = "v1.0.3"
 
   set {
-    name  = "aws.region"
+    name  = "awsRegion"
     value = data.aws_region.current.name
+  }
+
+  set {
+    name  = "awsAccountId"
+    value = data.aws_caller_identity.current.account_id
+  }
+
+  set {
+    name  = "clusterVpcId"
+    value = module.vpc.id
   }
 
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
     value = module.gateway_controller_sa_role.iam_role_arn
+  }
+
+  set {
+    name  = "defaultServiceNetwork"
+    value = module.eks.cluster_name
   }
 }
 
@@ -96,9 +111,9 @@ resource "kubectl_manifest" "gateway_class" {
     apiVersion: gateway.networking.k8s.io/v1beta1
     kind: GatewayClass
     metadata:
-        name: amazon-vpc-lattice
+      name: ${module.eks.cluster_name}
     spec:
-        controllerName: application-networking.k8s.aws/gateway-api-controller
+      controllerName: application-networking.k8s.aws/gateway-api-controller
   YAML
 
   depends_on = [
@@ -111,20 +126,17 @@ resource "kubectl_manifest" "gateway" {
     apiVersion: gateway.networking.k8s.io/v1beta1
     kind: Gateway
     metadata:
-      name: nginx-gateway
-      annotations:
-        application-networking.k8s.aws/lattice-vpc-association: "true"
+      name: ${module.eks.cluster_name}
     spec:
-      gatewayClassName: amazon-vpc-lattice
+      gatewayClassName: ${module.eks.cluster_name}
       listeners:
       - name: http
         protocol: HTTP
         port: 80
+        allowedRoutes:
+          namespaces:
+            from: All
   YAML
-
-  depends_on = [
-    helm_release.gateway_controller
-  ]
 }
 
 resource "kubectl_manifest" "route" {
@@ -132,11 +144,10 @@ resource "kubectl_manifest" "route" {
     apiVersion: gateway.networking.k8s.io/v1beta1
     kind: HTTPRoute
     metadata:
-      name: nginx-http-route
+      name: ${module.eks.cluster_name}
     spec:
       parentRefs:
-      - name: nginx-gateway
-        sectionName: http
+      - name: ${module.eks.cluster_name}
       rules:
       - backendRefs:
         - name: nginx-service

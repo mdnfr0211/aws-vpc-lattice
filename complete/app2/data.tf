@@ -1,3 +1,13 @@
+data "aws_region" "current" {}
+
+data "aws_caller_identity" "current" {}
+
+data "aws_availability_zones" "available" {}
+
+data "aws_ecrpublic_authorization_token" "token" {
+  provider = aws.virginia
+}
+
 data "aws_iam_policy_document" "karpenter" {
   statement {
     sid    = "AllowScopedEC2InstanceActions"
@@ -32,7 +42,7 @@ data "aws_iam_policy_document" "karpenter" {
 
     condition {
       test     = "StringLike"
-      variable = "aws:RequestTag/karpenter.sh/provisioner-name"
+      variable = "aws:RequestTag/karpenter.sh/nodepool"
       values   = ["*"]
     }
   }
@@ -61,7 +71,7 @@ data "aws_iam_policy_document" "karpenter" {
 
     condition {
       test     = "StringLike"
-      variable = "aws:RequestTag/karpenter.sh/provisioner-name"
+      variable = "aws:RequestTag/karpenter.sh/nodepool"
       values   = ["*"]
     }
   }
@@ -73,9 +83,10 @@ data "aws_iam_policy_document" "karpenter" {
     resources = [
       "arn:aws:ec2:${data.aws_region.current.name}:*:fleet/*",
       "arn:aws:ec2:${data.aws_region.current.name}:*:instance/*",
-      "arn:aws:ec2:${data.aws_region.current.name}:*:volume/*",
-      "arn:aws:ec2:${data.aws_region.current.name}:*:network-interface/*",
       "arn:aws:ec2:${data.aws_region.current.name}:*:launch-template/*",
+      "arn:aws:ec2:${data.aws_region.current.name}:*:network-interface/*",
+      "arn:aws:ec2:${data.aws_region.current.name}:*:spot-instances-request/*",
+      "arn:aws:ec2:${data.aws_region.current.name}:*:volume/*",
     ]
 
     actions = ["ec2:CreateTags"]
@@ -99,7 +110,7 @@ data "aws_iam_policy_document" "karpenter" {
 
     condition {
       test     = "StringLike"
-      variable = "aws:RequestTag/karpenter.sh/provisioner-name"
+      variable = "aws:RequestTag/karpenter.sh/nodepool"
       values   = ["*"]
     }
   }
@@ -112,30 +123,14 @@ data "aws_iam_policy_document" "karpenter" {
 
     condition {
       test     = "StringEquals"
-      variable = "aws:ResourceTag/kubernetes.io/cluster/${module.eks.cluster_name}"
+      variable = "ec2:ResourceTag/kubernetes.io/cluster/${module.eks.cluster_name}"
       values   = ["owned"]
     }
 
     condition {
-      test     = "StringEquals"
-      variable = "aws:RequestTag/karpenter.sh/managed-by"
-      values   = [module.eks.cluster_name]
-    }
-
-    condition {
       test     = "StringLike"
-      variable = "aws:RequestTag/karpenter.sh/provisioner-name"
+      variable = "ec2:ResourceTag/karpenter.sh/nodepool"
       values   = ["*"]
-    }
-
-    condition {
-      test     = "ForAllValues:StringEquals"
-      variable = "aws:TagKeys"
-
-      values = [
-        "karpenter.sh/provisioner-name",
-        "karpenter.sh/managed-by",
-      ]
     }
   }
 
@@ -161,7 +156,7 @@ data "aws_iam_policy_document" "karpenter" {
 
     condition {
       test     = "StringLike"
-      variable = "aws:ResourceTag/karpenter.sh/provisioner-name"
+      variable = "aws:ResourceTag/karpenter.sh/nodepool"
       values   = ["*"]
     }
   }
@@ -233,130 +228,15 @@ data "aws_iam_policy_document" "karpenter" {
     resources = [module.eks.cluster_arn]
     actions   = ["eks:DescribeCluster"]
   }
-}
 
-module "karpenter_sa_role" {
-  source = "../../modules/base/iam/eks-sa"
-
-  role_name = format("%s-%s-%s", "karpenter", "sa-role", var.env)
-
-  attach_vpc_cni_policy = true
-  vpc_cni_enable_ipv4   = true
-
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  namespaces        = ["karpenter:karpenter"]
-
-  create_policy = true
-  policy_name   = format("%s-%s-%s", "karpenter", "sa-policy", var.env)
-  policy        = data.aws_iam_policy_document.karpenter.json
-}
-
-module "karpenter" {
-  source  = "terraform-aws-modules/eks/aws//modules/karpenter"
-  version = "19.17.2"
-
-  cluster_name           = module.eks.cluster_name
-  irsa_oidc_provider_arn = module.eks.oidc_provider_arn
-
-  create_irsa = false
-
-  iam_role_additional_policies = {
-    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  statement {
+    sid       = "AllowInstanceProfile"
+    effect    = "Allow"
+    resources = ["*"]
+    actions = [
+      "iam:AddRoleToInstanceProfile",
+      "iam:CreateInstanceProfile",
+      "iam:GetInstanceProfile",
+    ]
   }
-}
-
-resource "helm_release" "karpenter" {
-  namespace        = "karpenter"
-  create_namespace = true
-
-  name                = "karpenter"
-  repository          = "oci://public.ecr.aws/karpenter"
-  repository_username = data.aws_ecrpublic_authorization_token.token.user_name
-  repository_password = data.aws_ecrpublic_authorization_token.token.password
-  chart               = "karpenter"
-  version             = "v0.31.1"
-
-  set {
-    name  = "settings.aws.clusterName"
-    value = module.eks.cluster_name
-  }
-
-  set {
-    name  = "settings.aws.clusterEndpoint"
-    value = module.eks.cluster_endpoint
-  }
-
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.karpenter_sa_role.iam_role_arn
-  }
-
-  set {
-    name  = "settings.aws.defaultInstanceProfile"
-    value = module.karpenter.instance_profile_name
-  }
-
-  set {
-    name  = "settings.aws.interruptionQueueName"
-    value = module.karpenter.queue_name
-  }
-}
-
-resource "kubectl_manifest" "karpenter_provisioner" {
-  yaml_body = <<-YAML
-    apiVersion: karpenter.sh/v1alpha5
-    kind: Provisioner
-    metadata:
-      name: nginx
-    spec:
-      labels:
-        app: nginx
-        provisioner: karpenter
-      consolidation:
-        enabled: true
-      limits:
-        resources:
-          cpu: 1k
-      providerRef:
-        name: default
-      requirements:
-      - key: karpenter.sh/capacity-type
-        operator: In
-        values:
-        - spot
-      - key: node.kubernetes.io/instance-type
-        operator: In
-        values:
-        - t3.medium
-        - t3.large
-        - t3a.medium
-        - t3a.large
-      taints:
-      - key: app
-        value: nginx
-        effect: NoSchedule
-  YAML
-
-  depends_on = [
-    helm_release.karpenter,
-    kubectl_manifest.karpenter_node_template
-  ]
-}
-
-resource "kubectl_manifest" "karpenter_node_template" {
-  yaml_body = <<-YAML
-    apiVersion: karpenter.k8s.aws/v1alpha1
-    kind: AWSNodeTemplate
-    metadata:
-      name: default
-    spec:
-      subnetSelector:
-        karpenter.sh/discovery: ${module.eks.cluster_name}
-      securityGroupSelector:
-        aws-ids: "${module.eks.cluster_primary_security_group_id}"
-  YAML
-
-  depends_on = [
-    helm_release.karpenter
-  ]
 }

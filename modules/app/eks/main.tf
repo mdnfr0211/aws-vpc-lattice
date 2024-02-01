@@ -26,17 +26,7 @@ module "eks" {
   create_cluster_security_group = true
   create_node_security_group    = false
 
-  cluster_security_group_additional_rules = {
-    ingress_vpc_lattice = {
-      description = "VPC Lattice"
-      protocol    = "-1"
-      from_port   = 0
-      to_port     = 0
-      type        = "ingress"
-      cidr_blocks = ["169.254.171.0/24"]
-    }
-  }
-
+  cluster_security_group_additional_rules = {}
 
   eks_managed_node_group_defaults = {
     use_custom_launch_template = false

@@ -18,6 +18,11 @@ output "cluster_certificate_authority_data" {
   value       = module.eks.cluster_certificate_authority_data
 }
 
+output "eks_default_nodegroup_role_name" {
+  description = "IAM Role ARN of EKS Default Nodegroup"
+  value       = module.eks.eks_managed_node_groups["default"].iam_role_name
+}
+
 output "eks_default_nodegroup_role_arn" {
   description = "IAM Role ARN of EKS Default Nodegroup"
   value       = module.eks.eks_managed_node_groups["default"].iam_role_arn
