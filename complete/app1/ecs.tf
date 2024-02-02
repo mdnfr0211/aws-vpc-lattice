@@ -36,3 +36,25 @@ module "ecs_task" {
   secrets         = each.value.secrets
   environment     = each.value.env
 }
+
+module "alb" {
+  depends_on = [module.s3]
+  source     = "../../modules/app/alb"
+
+  alb_name      = format("%s-%s", var.alb_name, var.env)
+  tg_name       = format("%s-%s", var.tg_name, var.env)
+  subnet_ids    = module.vpc.private_subnet_ids
+  vpc_id        = module.vpc.id
+  log_bucket_id = module.s3["alb_log"].bucket_id
+}
+
+module "s3" {
+  for_each = local.s3_buckets
+
+  source = "../../modules/base/s3"
+
+  bucket_name      = each.value.name
+  acl              = each.value.acl
+  object_ownership = each.value.object_ownership
+  attach_lb_log    = each.value.attach_lb_log
+}
