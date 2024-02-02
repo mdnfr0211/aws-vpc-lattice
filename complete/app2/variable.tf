@@ -18,13 +18,8 @@ variable "env" {
   }
 }
 
-variable "instance_name" {
-  description = "Name to be used on EC2 instance created"
-  type        = string
-}
-
-variable "instance_type" {
-  description = "Instance type to use for the instance"
+variable "cluster_name" {
+  description = "Name to be associated with EKS cluster Name"
   type        = string
 }
 

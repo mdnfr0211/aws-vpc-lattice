@@ -18,13 +18,13 @@ variable "env" {
   }
 }
 
-variable "instance_name" {
-  description = "Name to be used on EC2 instance created"
+variable "cluster_name" {
+  description = "Name of the ECS Cluster"
   type        = string
 }
 
-variable "instance_type" {
-  description = "Instance type to use for the instance"
+variable "service_name" {
+  description = "Name of the ECS Service"
   type        = string
 }
 
