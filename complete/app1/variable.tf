@@ -32,3 +32,13 @@ variable "vpc_name" {
   description = "Name of the VPC"
   type        = string
 }
+
+variable "alb_name" {
+  description = "Name of the Application Load Balancer"
+  type        = string
+}
+
+variable "tg_name" {
+  description = "Name of the Target Group"
+  type        = string
+}
