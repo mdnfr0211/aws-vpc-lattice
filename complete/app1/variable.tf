@@ -42,3 +42,8 @@ variable "tg_name" {
   description = "Name of the Target Group"
   type        = string
 }
+
+variable "service_network_id" {
+  description = "ID of the Shared Service Network"
+  type        = string
+}

@@ -17,7 +17,7 @@ variable "public_subnets" {
 variable "private_subnets" {
   description = "A list of Private subnets inside the VPC"
   type        = list(string)
-  default     = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  default     = []
 }
 
 variable "intra_subnets" {

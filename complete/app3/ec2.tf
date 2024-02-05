@@ -3,7 +3,8 @@ data "template_file" "nginx" {
 }
 
 module "ec2" {
-  source = "../../modules/app/ec2"
+  depends_on = [module.vpc]
+  source     = "../../modules/app/ec2"
 
   instance_name        = format("%s-%s", var.instance_name, var.env)
   ami                  = data.aws_ami.ubuntu.id

@@ -237,6 +237,7 @@ data "aws_iam_policy_document" "karpenter" {
       "iam:AddRoleToInstanceProfile",
       "iam:CreateInstanceProfile",
       "iam:GetInstanceProfile",
+      "iam:TagInstanceProfile"
     ]
   }
 }

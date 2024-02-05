@@ -10,6 +10,8 @@ data "aws_ami" "ubuntu" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+
+  owners = ["099720109477"]
 }
 
 data "aws_availability_zones" "available" {}

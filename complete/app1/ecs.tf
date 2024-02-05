@@ -5,10 +5,16 @@ module "ecs" {
   ecs_service = {
     service = {
       name                = format("%s-%s", var.service_name, var.env)
-      cpu                 = 1024
-      memory              = 2048
+      cpu                 = 512
+      memory              = 1024
       task_definition_arn = module.ecs_task["api"].arn
-      load_balancer       = {}
+      load_balancer = {
+        service = {
+          target_group_arn = module.alb.target_group_arn
+          container_name   = "nginx"
+          container_port   = 80
+        }
+      }
       sg_ids = [
         module.sg.security_group_id
       ]

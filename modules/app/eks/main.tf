@@ -26,7 +26,16 @@ module "eks" {
   create_cluster_security_group = true
   create_node_security_group    = false
 
-  cluster_security_group_additional_rules = {}
+  cluster_security_group_additional_rules = {
+    karpenter = {
+      description              = "VPC Lattice"
+      protocol                 = "-1"
+      from_port                = 0
+      to_port                  = 0
+      type                     = "ingress"
+      source_security_group_id = var.karpenter_sg
+    }
+  }
 
   eks_managed_node_group_defaults = {
     use_custom_launch_template = false
