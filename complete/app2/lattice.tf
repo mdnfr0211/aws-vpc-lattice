@@ -99,11 +99,6 @@ resource "helm_release" "gateway_controller" {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
     value = module.gateway_controller_sa_role.iam_role_arn
   }
-
-  set {
-    name  = "defaultServiceNetwork"
-    value = module.eks.cluster_name
-  }
 }
 
 resource "kubectl_manifest" "gateway_class" {
@@ -126,7 +121,7 @@ resource "kubectl_manifest" "gateway" {
     apiVersion: gateway.networking.k8s.io/v1beta1
     kind: Gateway
     metadata:
-      name: ${module.eks.cluster_name}
+      name: ${var.service_network_id}
     spec:
       gatewayClassName: ${module.eks.cluster_name}
       listeners:
@@ -137,6 +132,10 @@ resource "kubectl_manifest" "gateway" {
           namespaces:
             from: All
   YAML
+
+  depends_on = [
+    helm_release.gateway_controller
+  ]
 }
 
 resource "kubectl_manifest" "route" {
@@ -144,10 +143,10 @@ resource "kubectl_manifest" "route" {
     apiVersion: gateway.networking.k8s.io/v1beta1
     kind: HTTPRoute
     metadata:
-      name: ${module.eks.cluster_name}
+      name: "${module.eks.cluster_name}-service"
     spec:
       parentRefs:
-      - name: ${module.eks.cluster_name}
+      - name: ${var.service_network_id}
       rules:
       - backendRefs:
         - name: nginx-service

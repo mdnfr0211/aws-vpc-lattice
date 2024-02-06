@@ -18,22 +18,7 @@ variable "env" {
   }
 }
 
-variable "instance_name" {
-  description = "Name to be used on EC2 instance created"
-  type        = string
-}
-
-variable "instance_type" {
-  description = "Instance type to use for the instance"
-  type        = string
-}
-
-variable "vpc_name" {
-  description = "Name of the VPC"
-  type        = string
-}
-
-variable "service_network_id" {
-  description = "ID of the Shared Service Network"
-  type        = string
+variable "accepter_account_ids" {
+  description = "List of Account IDs for which the Service Network to be Shared"
+  type        = list(any)
 }

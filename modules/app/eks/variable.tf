@@ -33,3 +33,8 @@ variable "tags" {
   type        = map(any)
   default     = {}
 }
+
+variable "karpenter_sg" {
+  description = "Security Group ID of the Karpenter Nodes"
+  type        = string
+}
