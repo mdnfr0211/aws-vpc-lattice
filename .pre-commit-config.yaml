@@ -1,9 +1,4 @@
 repos:
-  - repo: https://github.com/gruntwork-io/pre-commit
-    rev: v0.1.22
-    hooks:
-      - id: shellcheck
-
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.81.0
     hooks:
@@ -11,6 +6,7 @@ repos:
       - id: terraform_providers_lock
         args:
           - --args=-platform=linux_amd64
+          - --args=-platform=windows_amd64
       - id: terraform_validate
       - id: terraform_tflint
         args:
@@ -26,18 +22,17 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-      # Git style
       - id: check-added-large-files
-      - id: check-merge-conflict
-      - id: check-merge-conflict
       - id: no-commit-to-branch
 
-      # Common errors
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: pretty-format-json
 
-      # Security
       - id: detect-aws-credentials
         args: ['--allow-missing-credentials']
       - id: detect-private-key
