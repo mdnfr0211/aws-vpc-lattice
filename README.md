@@ -3,10 +3,8 @@
 This repository provides example code for deploying service-to-service communication using Amazon VPC Lattice. The architecture includes several applications hosted in Amazon EKS, Amazon ECS, and EC2 instances. The components are interconnected using VPC Lattice according to the following setup.
 
 ![Diag](https://github.com/mdnfr0211/aws-vpc-lattice/assets/55761300/3b1bb33a-74a4-4336-b90c-f65231ac6f47)
-![Diag](https://github.com/mdnfr0211/aws-vpc-lattice/assets/55761300/3b1bb33a-74a4-4336-b90c-f65231ac6f47)
 
 
-## Prerequisites
 ## Prerequisites
 
 - Terraform: The infrastructure is managed using Terraform. Ensure it is installed on your local machine
@@ -14,14 +12,6 @@ This repository provides example code for deploying service-to-service communica
 - kubectl: Kubernetes command-line tool, kubectl, is required for interacting with EKS clusters.
 - AWS Accounts: You need AWS account(s) with IAM user(s) possessing the necessary permissions. The deployment instructions are flexible and support both single and multiple AWS accounts. Choose the pattern that aligns with your testing preferences
 
-
-## Architecture Overview
-
-The design consists of four AWS accounts, each with a private VPC within the overlapping CIDR range of 10.0.0.0/16.
-
-- An EC2 instance in Account A acts as the central communication point, utilizing VPC Lattice to reach private services like ECS, EKS, and EC2 instances in other accounts.
-- Account C hosts an ECS service behind an internal application load balancer, accessible via VPC Lattice.
-- Account D includes two VPCs: one with EKS and an Application Gateway Controller managing VPC Lattice, and another with an EC2 instance, both interacting with Account A through VPC Lattice.
 ## Architecture Overview
 
 The design consists of four AWS accounts, each with a private VPC within the overlapping CIDR range of 10.0.0.0/16.
