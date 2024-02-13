@@ -121,7 +121,7 @@ resource "kubectl_manifest" "gateway" {
     apiVersion: gateway.networking.k8s.io/v1beta1
     kind: Gateway
     metadata:
-      name: ${var.service_network_id}
+      name: ${var.service_network_name}
     spec:
       gatewayClassName: ${module.eks.cluster_name}
       listeners:
@@ -146,7 +146,7 @@ resource "kubectl_manifest" "route" {
       name: "${module.eks.cluster_name}-service"
     spec:
       parentRefs:
-      - name: ${var.service_network_id}
+      - name: ${var.service_network_name}
       rules:
       - backendRefs:
         - name: nginx-service

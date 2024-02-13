@@ -18,7 +18,7 @@ variable "env" {
   }
 }
 
-variable "accepter_account_ids" {
-  description = "List of Account IDs for which the Service Network to be Shared"
-  type        = list(any)
-}
+# variable "accepter_account_ids" {
+#   description = "List of Account IDs for which the Service Network to be Shared"
+#   type        = list(any)
+# }

@@ -7,8 +7,16 @@ module "sg" {
 
   vpc_id = var.vpc_id
 
-  ingress_with_self                     = []
-  ingress_with_cidr_blocks              = []
+  ingress_with_self = []
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = -1
+      description = "VPC Lattice"
+      cidr_blocks = "169.254.171.0/24"
+    }
+  ]
   ingress_with_prefix_list_ids          = []
   ingress_with_source_security_group_id = []
 

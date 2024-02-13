@@ -28,7 +28,7 @@ resource "kubernetes_deployment_v1" "nginx" {
               memory = "500Mi"
             }
             requests = {
-              cpu    = "1"
+              cpu    = "500m"
               memory = "250Mi"
             }
           }
