@@ -7,7 +7,15 @@ module "sg" {
 
   vpc_id = module.vpc.id
 
-  ingress_with_cidr_blocks = []
+  ingress_with_source_security_group_id = [
+    {
+      from_port                = 80
+      to_port                  = 80
+      protocol                 = "tcp"
+      description              = "ALB"
+      source_security_group_id = module.alb.sg_id
+    }
+  ]
 
   egress_with_cidr_blocks = [
     {

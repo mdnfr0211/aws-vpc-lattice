@@ -124,10 +124,7 @@ resource "kubectl_manifest" "karpenter_nodepool" {
             - key: node.kubernetes.io/instance-type
               operator: In
               values:
-                - t3.medium
-                - t3.large
-                - t3a.medium
-                - t3a.large
+                - t2.micro
           taints:
             - key: app
               value: nginx

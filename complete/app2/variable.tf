@@ -28,7 +28,7 @@ variable "vpc_name" {
   type        = string
 }
 
-variable "service_network_id" {
-  description = "ID of the Shared Service Network"
+variable "service_network_name" {
+  description = "Name of the Shared Service Network"
   type        = string
 }
